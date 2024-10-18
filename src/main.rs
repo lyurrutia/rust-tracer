@@ -1,3 +1,5 @@
+use std::io::Write;
+
 fn main() {
     // Image specs
     let image_width = 256;
@@ -7,6 +9,8 @@ fn main() {
     println!("P3\n{image_width} {image_height} \n255");
 
     for pixel_h in 0..image_height {
+        eprint!("\rScanlines remaining: {} ", image_height - pixel_h);
+        let _ = std::io::stderr().flush();
         for pixel_w in 0..image_width {
             let r: f64 = pixel_w as f64 / (image_width - 1) as f64;
             let g: f64 = pixel_h as f64 / (image_height - 1) as f64;
@@ -19,4 +23,5 @@ fn main() {
             println!("{ir} {ig} {ib}");
         }
     }
+    eprintln!("\rDone                    ");
 }
