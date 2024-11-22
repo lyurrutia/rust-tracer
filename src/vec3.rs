@@ -1,6 +1,13 @@
 use core::ops::Neg;
 use core::ops::Index;
 use core::ops::IndexMut;
+use core::ops::AddAssign;
+use core::ops::Add;
+use core::ops::Sub;
+use core::ops::MulAssign;
+use core::ops::Mul;
+use core::ops::DivAssign;
+use core::ops::Div;
 
 #[derive(Debug, Copy, Clone)]
 struct Vec3 {
@@ -22,6 +29,36 @@ impl Vec3 {
     pub fn y(self) -> f64 { return self.e[1] }
     pub fn z(self) -> f64 { return self.e[2] }
     
+    pub fn length(self) -> f64 {
+        return self.length_squared().sqrt();
+    }
+
+    pub fn length_squared(self) -> f64 {
+        return self.e[0] * self.e[0] +
+            self.e[1] * self.e[1] +
+            self.e[2] * self.e[2]
+    }
+
+    pub fn unit_vector(self) -> Vec3 {
+        return self / self.length();
+    }
+
+    pub fn dot(u:Vec3, v:Vec3) -> f64 {
+        return u.e[0] * v.e[0] +
+               u.e[1] * v.e[1] +
+               u.e[2] * v.e[2]
+    }
+
+    pub fn cross(u:Vec3, v:Vec3) -> Vec3 {
+        return Vec3 { e:
+            [u.e[1] * v.e[2] - u.e[2] * v.e[1],
+             u.e[2] * v.e[0] - u.e[0] * v.e[2],
+             u.e[0] * v.e[1] - u.e[1] * v.e[0] ] 
+        }
+    }
+
+    pub fn print(self) { println!("{} {} {}", self.e[0], self.e[1],self.e[2]);}
+    pub fn printerr(self) { eprintln!("{} {} {}", self.e[0], self.e[1],self.e[2]);}
 }
 
 // Allows for negation (-) operator with vector
@@ -52,6 +89,85 @@ impl IndexMut<usize> for Vec3 {
         return &mut self.e[index] 
     }
 }
+
+//  vec3& operator+=(const vec3& v) {
+impl AddAssign for Vec3 {
+    fn add_assign(&mut self, other: Self) {
+        *self = Self {
+            e: [ self.x() + other.x(),
+                 self.y() + other.y(),
+                 self.z() + other.z() ]
+        };
+    }
+}
+
+impl Add<Vec3> for Vec3 {
+    type Output = Vec3;
+    fn add(self, other: Vec3) -> Vec3 {
+        return Vec3 {
+            e: [ self.x() + other.x(),
+                 self.y() + other.y(),
+                 self.z() + other.z() ] }
+    }
+}
+
+impl Sub<Vec3> for Vec3 {
+    type Output = Vec3;
+    fn sub(self, other: Vec3) -> Vec3 {
+        return Vec3 {
+            e: [ self.x() - other.x(),
+                 self.y() - other.y(),
+                 self.z() - other.z() ] }
+    }
+}
+
+//  vec3& operator*=(double t) {
+impl MulAssign<f64> for Vec3 {
+    fn mul_assign(&mut self, other: f64) {
+        *self = Self {
+            e: [ self.x() * other,
+                 self.y() * other,
+                 self.z() * other ]
+        };
+    }
+}
+
+impl Mul<Vec3> for f64 {
+    type Output = Vec3;
+    fn mul(self, other: Vec3) -> Vec3 {
+        return Vec3 {
+            e: [ other.x() * self,
+                 other.y() * self,
+                 other.z() * self ] }
+    }
+}
+
+// Scalar multiplication
+impl Mul<Vec3> for Vec3 {
+    type Output = Vec3;
+    fn mul(self, other: Vec3) -> Vec3 {
+        return Vec3 {
+            e: [ self.x() * other.x(),
+                 self.y() * other.y(),
+                 self.z() * other.z() ] }
+    }
+}
+
+//  vec3& operator/=(double t) {
+impl DivAssign<f64> for Vec3 {
+    fn div_assign(&mut self, other: f64) {
+        *self *= 1.0/other;
+    }
+}
+
+// Scalar division
+impl Div<f64> for Vec3 {
+    type Output = Vec3;
+    fn div(self, other: f64) -> Vec3 {
+        return (1.0/other) * self;
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
